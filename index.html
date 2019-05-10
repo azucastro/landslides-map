@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <title>Landslides 2007-2016</title>
+    <title>Landslides in North and South America</title>
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
   </head>
@@ -11,7 +11,7 @@
   <body>
     <div id='map'></div>
     <div id='console'>
-      <h1>Landslides: 2007-2016</h1>
+      <h1>Landslides in North and South America</h1>
     
         <div class='session' id='sliderbar'>
             <h2>Year: <label id='active-year'>2007</label></h2>
@@ -78,8 +78,8 @@
     }
 
     h1 {
-      font-size: 20px;
-      line-height: 30px;
+      font-size: 18px;
+      line-height: 20px;
     }
 
     h2 {
@@ -94,7 +94,7 @@
 
     #console {
       position: absolute;
-      width: 280px;
+      width: 245px;
       height: 320px;
       margin: 10px;
       padding: 10px 20px;
@@ -138,13 +138,16 @@
   <script> 
       
      mapboxgl.accessToken = 'pk.eyJ1IjoiYXp1Y2FzdHJvIiwiYSI6ImNqc2N2ZmVrZjAwbGU0M21mbmt5b3dhMXUifQ.OAzisqg5cUyB6JLh-K-6wg';
+      var bounds = [[-180, -80], // Southwest coordinates
+          [-25, 75]  // Northeast coordinates
+      ];
+      
      var map = new mapboxgl.Map({
          container: 'map', // container element id
          style:'mapbox://styles/azucastro/cjv5p9hmh1nvq1fqon6ltzajj',
-         //'mapbox://styles/azucastro/cjv5o263h3m9m1fphawie6aq9',
-         //'mapbox://styles/azucastro/cjv2kppbn6mgh1flvl57ewmt3',
-         center: [-91.096578, 13.761801], // initial map center in [lon, lat]
-         zoom: 2
+         center: [-100, 28],
+         zoom: 2.2,
+         maxBounds: bounds
      });
       
     var filterYear = ['==', ['number', ['get', 'year']], 2007];
