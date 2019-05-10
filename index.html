@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <title>Landslides 2007-2016</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+  </head>
+  
+  <body>
+    <div id='map'></div>
+    <div id='console'>
+      <h1>Landslides: 2007-2016</h1>
+    
+        <div class='session' id='sliderbar'>
+            <h2>Year: <label id='active-year'>2007</label></h2>
+            <input id='slider' class='row' type='range' min='2007' max='2016' step='1' value='2007'/>
+        </div>
+        
+        <div class='session'>
+          <h2>Landslide Trigger</h2>
+          <div class='row' id='filters'>
+            <input id='All' type='radio' name='toggle' value='All' checked='checked'>
+            <label for='All'>All</label>
+            <input id='Rain' type='radio' name='toggle' value='Rain'>
+            <label for='rain'>Rain</label>
+            <input id='cyclone' type='radio' name='toggle' value='Tropical cyclone'>
+            <label for='cyclone'>Tropical Cyclone  </label>
+            <input id='Downpour' type='radio' name='toggle' value='Downpour'>
+            <label for='downpour'>Downpour</label>
+            <input id='Earthquake' type='radio' name='toggle' value='Earthquake'>
+            <label for='Earthquake'>Earthquake</label>
+            <input id='flooding' type='radio' name='toggle' value='Flooding'>
+            <label for='flooding'>Flooding</label>
+            <input id='snow' type='radio' name='toggle' value='Snowfall snowmelt'>
+            <label for='snow'>Snowmelt</label>
+            <input id='other' type='radio' name='toggle' value='Other'>
+            <label for='other'>Other</label>
+           </div>
+        </div>
+        
+        <div class='session' id='range'>
+          <h2>Casualties</h2>
+          <div class='row colors'>
+          </div>
+          <div class='row labels'>
+            <div class='label'>0</div>
+            <div class='label'>10</div>
+            <div class='label'>20</div>
+            <div class='label'>30</div>
+            <div class='label'>40</div>
+            <div class='label'>50+</div>
+          </div>
+        </div>
+        
+        <a href= 'https://www.kaggle.com/nasa/landslide-events'>Data Source</a>
+
+        
+    </div>
+      
+     
+
+  </body>
+
+  <style>
+    body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 20px;
+      line-height: 30px;
+    }
+
+    h2 {
+      font-size: 14px;
+      line-height: 20px;
+      margin-bottom: 10px;
+    }
+      a {
+          font: 'Helvetica Neue';
+          font-size: 12px;
+      }
+
+    #console {
+      position: absolute;
+      width: 280px;
+      height: 320px;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: white;
+    }
+    .session {
+        margin-top: 10px;
+        margin-bottom: 60px;
+    }
+    #sliderbar {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    #range {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      height: 12px;
+      width: 100%;
+    }
+
+    .colors {
+      background: linear-gradient(to right, #f0c33d, #DE9C30, #CD7524, #BB4E18, #AA270C, #990000);
+      margin-bottom: 5px;
+    }
+
+    .label {
+      width: 15%;
+      display: inline-block;
+      text-align: center;
+    }
+    .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+  </style>
+  
+    
+  <script> 
+      
+     mapboxgl.accessToken = 'pk.eyJ1IjoiYXp1Y2FzdHJvIiwiYSI6ImNqc2N2ZmVrZjAwbGU0M21mbmt5b3dhMXUifQ.OAzisqg5cUyB6JLh-K-6wg';
+     var map = new mapboxgl.Map({
+         container: 'map', // container element id
+         style:'mapbox://styles/azucastro/cjv5p9hmh1nvq1fqon6ltzajj',
+         //'mapbox://styles/azucastro/cjv5o263h3m9m1fphawie6aq9',
+         //'mapbox://styles/azucastro/cjv2kppbn6mgh1flvl57ewmt3',
+         center: [-91.096578, 13.761801], // initial map center in [lon, lat]
+         zoom: 2
+     });
+      
+    var filterYear = ['==', ['number', ['get', 'year']], 2007];
+    var filterTrigger = ['!=', ['string', ['get', 'trigger']], 'placeholder'];
+      
+    map.on('load',function(){
+      map.addLayer({
+        id: 'landslides',
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: 'landslides.geojson' // replace this with the url of your own geojson
+        },
+        paint: {
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['number', ['get', 'fatalities']],
+            0, 5,
+            280, 40
+          ],
+          'circle-color': [
+            'interpolate',
+            ['linear'],
+            ['number', ['get', 'fatalities']],
+            0, '#f0c33d',
+            10, '#DE9C30',
+            20, '#CD7524',
+            30, '#BB4E18',
+            40, '#AA270C',
+            50, '#990000'//#800080'
+          ],
+          'circle-opacity': 0.7
+        },
+          'filter': ['all', filterYear, filterTrigger]
+      });
+    });
+      
+    document.getElementById('slider').addEventListener('input', function(e) {
+        var year = parseInt(e.target.value);
+          // update the map
+        //map.setFilter('landslides', ['==', ['number', ['get', 'year']], year]);
+        filterYear = ['==', ['number', ['get', 'year']], year];
+        map.setFilter('landslides', ['all', filterYear, filterTrigger]);
+        // update text in the UI
+        document.getElementById('active-year').innerText = year;
+    });
+
+ 
+    document.getElementById('filters').addEventListener('change', function(e) {
+      var trigger = e.target.value;
+      // update the map filter
+      if (trigger === 'All') {
+        filterTrigger = ['!=', ['string', ['get', 'trigger']], 'placeholder'];
+      } else if (trigger === 'Downpour') {
+        filterTrigger = ['match', ['get', 'trigger'], ['Downpour','downpour'], true, false];
+      } else if (trigger === 'Earthquake') {
+        filterTrigger = ['match', ['get', 'trigger'], 'Earthquake', true, false];
+      } else if (trigger === 'Rain') {
+        filterTrigger = ['match', ['get', 'trigger'], ['Rain','Continuous rain'], true, false];
+      } else if (trigger === 'Flooding') {
+        filterTrigger = ['match', ['get', 'trigger'],'Flooding', true, false];
+      } else if (trigger === 'Tropical cyclone') {
+        filterTrigger = ['match', ['get', 'trigger'], 'Tropical cyclone', true, false];
+      } else if (trigger === 'Snowfall snowmelt') {
+        filterTrigger = ['match', ['get', 'trigger'], ['Snowfall snowmelt'], true, false];
+      } else if (trigger === 'Other') {
+        filterTrigger = ['match', ['get', 'trigger'], ['Other','unknown','Unknown'], true, false]; 
+      } else {
+        console.log('error');
+      }
+      map.setFilter('landslides', ['all', filterYear, filterTrigger]);
+    });
+      
+    map.on('mouseenter', 'landslides', function () {
+            map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'landslides', function () {
+            map.getCanvas().style.cursor = '';
+    });
+      
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      
+    map.on('click', 'landslides', function (e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var description = e.features[0].properties.fatalities;
+            var date = e.features[0].properties.date;
+            var country = e.features[0].properties.country_name;
+            var trig = e.features[0].properties.trigger;
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML('<b>' + 'Country: ' + '</b>' + country + '<br>' + '<b>' + 'Date: ' + '</b>' + date + '<br>' + '<b>' + 'Trigger: ' + '</b>' + trig + '<br>' + '<b>' + 'Casualties: ' + '</b>' + description)
+            .addTo(map);
+    });
+      
+  </script>
+    
+
+  
+</html>
